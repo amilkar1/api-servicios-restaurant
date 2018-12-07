@@ -7,6 +7,8 @@ var RESTAURANT = require("../../../database/collections/../../database/collectio
 var MENUS = require("../../../database/collections/../../database/collections/menus");
 var CLIENT = require("../../../database/collections/../../database/collections/client");
 
+var ORDERS = require("../../../database/collections/../../database/collections/orders");
+
 var jwt = require("jsonwebtoken");
 
 
@@ -23,7 +25,7 @@ var upload = multer({
 }).single("img");;
 
 /*
-Login USER
+Login PARA CLIENTES
 */
 
 //Middelware
@@ -270,7 +272,15 @@ router.put(/home\/[a-z0-9]{1,}$/, verifytoken,(req, res) => {
       return;
   });
 });
-//User register
+
+
+
+
+
+
+
+//CONTROL DE LOGIN PARA CLIENTES
+
 router.post("/login", (req, res, next) => {
   var email = req.body.email;
   var password = req.body.password;
@@ -296,6 +306,13 @@ router.post("/login", (req, res, next) => {
     }
   });
 });
+
+
+
+
+
+// API CLIENTE
+
 router.post("/client", (req, res) => {
   var client = req.body;
   //Validacion de datosssss
@@ -308,7 +325,88 @@ router.post("/client", (req, res) => {
 });
 
 
-//API RESTAURANTE
+//GET CLIENTE
+
+router.get("/client",verifytoken ,(req, res) => {
+  var skip = 0;
+  var limit = 10;
+  if (req.query.skip != null) {
+    skip = req.query.skip;
+  }
+
+  if (req.query.limit != null) {
+    limit = req.query.limit;
+  }
+  CLIENT.find({}).skip(skip).limit(limit).exec((err, docs) => {
+    if (err) {
+      res.status(500).json({
+        "msn" : "Error en la db"
+      });
+      return;
+    }
+    res.status(200).json(docs);
+  });
+});
+
+
+// PATCH CLIENTE
+
+
+router.patch("/client",verifytoken ,(req, res) => {
+  var params = req.body;
+  var id = req.query.id;
+  //Collection of data
+  var keys = Object.keys(params);
+  var updatekeys = ["name", "email", "phone", "ci", "password"];
+  var newkeys = [];
+  var values = [];
+  //seguridad
+  for (var i  = 0; i < updatekeys.length; i++) {
+    var index = keys.indexOf(updatekeys[i]);
+    if (index != -1) {
+        newkeys.push(keys[index]);
+        values.push(params[keys[index]]);
+    }
+  }
+  var objupdate = {}
+  for (var i  = 0; i < newkeys.length; i++) {
+      objupdate[newkeys[i]] = values[i];
+  }
+  console.log(objupdate);
+  CLIENT.findOneAndUpdate({_id: id}, objupdate ,(err, docs) => {
+    if (err) {
+      res.status(500).json({
+          msn: "Existe un error en la base de datos"
+      });
+      return;
+    }
+    var id = docs._id
+    res.status(200).json({
+      msn: "cliente actualizado con el id: " + id
+    })
+  });
+});
+
+
+//DELETE CLIENTE
+
+router.delete("/client",verifytoken ,(req, res) => {
+  
+  var id = req.query.id;
+  CLIENT.find({_id : id}).remove().exec( (err, docs) => {
+    res.status(200).json(docs);
+    
+      });
+  });
+
+
+
+
+
+
+
+///////////////////////////////////////////////77//API RESTAURANTE
+
 
 router.post("/restaurant", verifytoken,(req, res) => {
   var data = req.body;
@@ -395,6 +493,8 @@ router.patch("/restaurant",verifytoken ,(req, res) => {
     })
   });
 });
+
+
 router.post("/uploadrestaurant",verifytoken ,(req, res) => {
   var params = req.query;
   var id = params.id;
@@ -432,6 +532,232 @@ router.post("/uploadrestaurant",verifytoken ,(req, res) => {
 
 
 
+
   
+
+  //////////////////////////////////API MENUS
   
+
+// CREAR MENUS
+
+router.post("/menus", verifytoken,(req, res) => {
+  var data = req.body;
+  //Validacion
+  //Ustedes se opupan de validar estos datos
+  //OJO
+  data["registerdate"] = new Date();
+  var newmenu = new MENUS(data);
+  newmenu.save().then( (rr) => {
+    //content-type
+    res.status(200).json({
+      "id" : rr._id,
+      "msn" : "menu Agregado con exito"
+    });
+  });
+});
+
+// leer menus
+router.get("/menus",verifytoken ,(req, res) => {
+  var skip = 0;
+  var limit = 10;
+  if (req.query.skip != null) {
+    skip = req.query.skip;
+  }
+
+  if (req.query.limit != null) {
+    limit = req.query.limit;
+  }
+  MENUS.find({}).skip(skip).limit(limit).exec((err, docs) => {
+    if (err) {
+      res.status(500).json({
+        "msn" : "Error en la db"
+      });
+      return;
+    }
+    res.status(200).json(docs);
+  });
+});
+
+//PATCH MENUS
+
+
+router.patch("/menus",verifytoken ,(req, res) => {
+  var params = req.body;
+  var id = req.query.id;
+  //Collection of data
+  var keys = Object.keys(params);
+  var updatekeys = ["name", "price", "description", "picture"];
+  var newkeys = [];
+  var values = [];
+  //seguridad
+  for (var i  = 0; i < updatekeys.length; i++) {
+    var index = keys.indexOf(updatekeys[i]);
+    if (index != -1) {
+        newkeys.push(keys[index]);
+        values.push(params[keys[index]]);
+    }
+  }
+  var objupdate = {}
+  for (var i  = 0; i < newkeys.length; i++) {
+      objupdate[newkeys[i]] = values[i];
+  }
+  console.log(objupdate);
+  MENUS.findOneAndUpdate({_id: id}, objupdate ,(err, docs) => {
+    if (err) {
+      res.status(500).json({
+          msn: "Existe un error en la base de datos"
+      });
+      return;
+    }
+    var id = docs._id
+    res.status(200).json({
+      msn: "menu actualizado con el id siguienteeee: " + id
+    })
+  });
+});
+
+
+//DELETE PARA MENUS
+
+router.delete("/menus",verifytoken ,(req, res) => {
+  
+  var id = req.query.id;
+  MENUS.find({_id : id}).remove().exec( (err, docs) => {
+    res.status(200).json(docs);
+    
+      });
+  });
+
+
+// subir imagenes de menus
+router.post("/uploadmenus",verifytoken ,(req, res) => {
+  var params = req.query;
+  var id = params.id;
+  var SUPERES = res;
+  MENUS.findOne({_id: id}).exec((err, docs) => {
+    if (err) {
+      res.status(501).json({
+        "msn" : "Problemas con la base de datos"
+      });
+      return;
+    }
+    if (docs != undefined) {
+      upload(req, res, (err) => {
+        if (err) {
+          res.status(500).json({
+            "msn" : "Error al subir la imagen"
+          });
+          return;
+        }
+        var url = req.file.path.replace(/public/g, "");
+
+        MENUS.update({_id: id}, {$set:{picture:url}}, (err, docs) => {
+          if (err) {
+            res.status(200).json({
+              "msn" : err
+            });
+            return;
+          }
+          res.status(200).json(docs);
+        });
+      });
+    }
+  });
+});
+
+
+
+///////////////////////////////////API ORDENES
+
+router.post("/orders", verifytoken,(req, res) => {
+  var data = req.body;
+  //Validacion
+  //Ustedes se opupan de validar estos datos
+  //OJO
+  data["registerdate"] = new Date();
+  var neworders = new ORDERS(data);
+  neworders.save().then( (rr) => {
+    //content-type
+    res.status(200).json({
+      "id" : rr._id,
+      "msn" : "orden REGISTRADA con exito"
+    });
+  });
+});
+
+
+router.get("/ordes",verifytoken ,(req, res) => {
+  var skip = 0;
+  var limit = 10;
+  if (req.query.skip != null) {
+    skip = req.query.skip;
+  }
+
+  if (req.query.limit != null) {
+    limit = req.query.limit;
+  }
+  ORDERS.find({}).skip(skip).limit(limit).exec((err, docs) => {
+    if (err) {
+      res.status(500).json({
+        "msn" : "Error en la db"
+      });
+      return;
+    }
+    res.status(200).json(docs);
+  });
+});
+
+
+
+//PATCH
+
+router.patch("/orders",verifytoken ,(req, res) => {
+  var params = req.body;
+  var id = req.query.id;
+  //Collection of data
+  var keys = Object.keys(params);
+  var updatekeys = ["idmenu", "idcliente", "street", "Lat", "Log", "pagototal"];
+  var newkeys = [];
+  var values = [];
+
+  //seguridad
+  for (var i  = 0; i < updatekeys.length; i++) {
+    var index = keys.indexOf(updatekeys[i]);
+    if (index != -1) {
+        newkeys.push(keys[index]);
+        values.push(params[keys[index]]);
+    }
+  }
+  var objupdate = {}
+  for (var i  = 0; i < newkeys.length; i++) {
+      objupdate[newkeys[i]] = values[i];
+  }
+  console.log(objupdate);
+  ORDERS.findOneAndUpdate({_id: id}, objupdate ,(err, docs) => {
+    if (err) {
+      res.status(500).json({
+          msn: "Existe un error en la base de datos"
+      });
+      return;
+    }
+    var id = docs._id
+    res.status(200).json({
+      msn: "ORDEN actualizado con el id: " + id
+    })
+  });
+});
+
+
+router.delete("/orders",verifytoken ,(req, res) => {
+  
+  var id = req.query.id;
+  ORDERS.find({_id : id}).remove().exec( (err, docs) => {
+    res.status(200).json(docs);
+    
+      });
+  });
+
+
+
+
 module.exports = router;
