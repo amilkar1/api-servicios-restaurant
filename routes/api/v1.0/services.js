@@ -49,6 +49,10 @@ function verifytoken (req, res, next) {
       });
   }
 }
+
+
+/*
+
 //CRUD Create, Read, Update, Delete
 //Creation of users
 router.post(/homeimg\/[a-z0-9]{1,}$/, (req, res) => {
@@ -103,6 +107,7 @@ router.post(/homeimg\/[a-z0-9]{1,}$/, (req, res) => {
     }
   });
 });
+
 router.get(/homeimg\/[a-z0-9]{1,}$/, (req, res) => {
   var url = req.url;
   var id = url.split("/")[2];
@@ -274,7 +279,7 @@ router.put(/home\/[a-z0-9]{1,}$/, verifytoken,(req, res) => {
 });
 
 
-
+*/
 
 
 
@@ -311,12 +316,59 @@ router.post("/login", (req, res, next) => {
 
 
 
-// API CLIENTE
+////////////////////////////////////////////////////////////// API CLIENTE
 
 router.post("/client", (req, res) => {
   var client = req.body;
   //Validacion de datosssss
   //Validar ojo
+
+
+console.log(client);
+var name_reg = /\w{3,}/g
+var email_reg =/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,4})+$/g
+var phone_reg = /\w[0-9]/g
+var ci_reg = /\w[0-9]/g
+var password_reg = /\w{5,}/g
+
+
+if(client.name.match(name_reg) == null){
+  res.status(300).json({
+    msn: "formato de nombre no valido, use solo letras"
+  });
+  return;
+}
+
+
+if(client.email.match(email_reg) == null){
+  res.status(300).json({
+    msn: "formato de email no valido"
+  });
+  return;
+}
+
+if(client.phone.match(phone_reg)==null){
+  res.status(300).json({
+    msn: "formato de telefono no valido,"
+  });
+  return;
+}
+
+
+if(client.ci.match(ci_reg)==null){
+  res.status(300).json({
+    msn: "formato de ci no valido, "
+  });
+  return;
+}
+
+if(client.password.match(password_reg)==null){
+  res.status(300).json({
+    msn: "formato de password no valido,"
+  });
+  return;
+}
+
   client["registerdate"] = new Date();
   var cli = new CLIENT(client);
   cli.save().then((docs) => {
@@ -410,9 +462,7 @@ router.delete("/client",verifytoken ,(req, res) => {
 
 router.post("/restaurant", verifytoken,(req, res) => {
   var data = req.body;
-  //Validacion
-  //Ustedes se opupan de validar estos datos
-  //OJO
+  
   data["registerdate"] = new Date();
   var newrestaurant = new RESTAURANT(data);
   newrestaurant.save().then( (rr) => {
@@ -423,6 +473,8 @@ router.post("/restaurant", verifytoken,(req, res) => {
     });
   });
 });
+
+//
 router.get("/restaurant",verifytoken ,(req, res) => {
   var skip = 0;
   var limit = 10;
@@ -458,7 +510,7 @@ router.delete("/restaurant",verifytoken ,(req, res) => {
 
 
 //PATCH
-//5bf818592d2ab6418cfc8aa5
+
 router.patch("/restaurant",verifytoken ,(req, res) => {
   var params = req.body;
   var id = req.query.id;
