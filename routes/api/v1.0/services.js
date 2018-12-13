@@ -461,10 +461,66 @@ router.delete("/client",verifytoken ,(req, res) => {
 
 
 router.post("/restaurant", verifytoken,(req, res) => {
-  var data = req.body;
+  var restaurant = req.body;
   
-  data["registerdate"] = new Date();
-  var newrestaurant = new RESTAURANT(data);
+///validaciones para restaurant
+
+
+
+console.log(restaurant);
+
+var name_reg = /\w[a-z]{3,}/g
+var nit_reg = /\w[0-9]/g
+
+var property_reg = /\w[a-z]{3,}/g
+var street_reg = /\w{3,}/g
+var phone_reg = /\w[0-9]/g
+
+
+if(restaurant.name.match(name_reg) == null){
+  res.status(300).json({
+    msn: "formato de nombre del restaurant no es valido, use solo letras"
+  });
+  return;
+}
+
+
+if(restaurant.nit.match(nit_reg)==null){
+  res.status(300).json({
+    msn: "formato de telefono no valido,"
+  });
+  return;
+}
+if(restaurant.property.match(property_reg) == null){
+  res.status(300).json({
+    msn: "formato de nombre del propietario no es valido, use solo letras"
+  });
+  return;
+}
+
+if(restaurant.street.match(street_reg) == null){
+  res.status(300).json({
+    msn: "formato de calle no es valido, use solo letras"
+  });
+  return;
+}
+
+if(restaurant.phone.match(phone_reg)==null){
+  res.status(300).json({
+    msn: "formato de telefono no valido,"
+  });
+  return;
+}
+
+
+
+
+
+
+
+
+  restaurant["registerdate"] = new Date();
+  var newrestaurant = new RESTAURANT(restaurant);
   newrestaurant.save().then( (rr) => {
     //content-type
     res.status(200).json({
@@ -473,6 +529,20 @@ router.post("/restaurant", verifytoken,(req, res) => {
     });
   });
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 //
 router.get("/restaurant",verifytoken ,(req, res) => {
@@ -593,12 +663,49 @@ router.post("/uploadrestaurant",verifytoken ,(req, res) => {
 // CREAR MENUS
 
 router.post("/menus", verifytoken,(req, res) => {
-  var data = req.body;
-  //Validacion
-  //Ustedes se opupan de validar estos datos
-  //OJO
-  data["registerdate"] = new Date();
-  var newmenu = new MENUS(data);
+  var menus = req.body;
+
+
+//validaciones para menus
+
+console.log(menus);
+
+var name_reg = /\w[a-z]{3,}/g
+var price_reg = /\w[0-9]/g
+var description_reg = /\w[a-z]{3,}/g 
+var idrestaurant_reg = /\w[0-9]/g
+
+
+if(menus.name.match(name_reg) == null){
+  res.status(300).json({
+    msn: "formato de nombre del MENU no es valido, use solo letras"
+  });
+  return;
+}
+
+
+if(menus.price.match(price_reg)==null){
+  res.status(300).json({
+    msn: "formato de PRECIO DEL MENU  no es valido,"
+  });
+  return;
+}
+if(menus.description.match(description_reg) == null){
+  res.status(300).json({
+    msn: "formato de DESCRIPCION DEL MENU no es valido, use solo letras"
+  });
+  return;
+}
+
+if(menus.idrestaurant.match(idrestaurant_reg) == null){
+  res.status(300).json({
+    msn: "formato de IDE DEL RESTAURANT no es valido"
+  });
+  return;
+}
+
+  menus["registerdate"] = new Date();
+  var newmenu = new MENUS(menus);
   newmenu.save().then( (rr) => {
     //content-type
     res.status(200).json({
@@ -719,15 +826,56 @@ router.post("/uploadmenus",verifytoken ,(req, res) => {
 
 
 
-///////////////////////////////////API ORDENES
+//////////////////////////////////////////////////////////////////////////////////API ORDENES
 
 router.post("/orders", verifytoken,(req, res) => {
-  var data = req.body;
-  //Validacion
-  //Ustedes se opupan de validar estos datos
-  //OJO
-  data["registerdate"] = new Date();
-  var neworders = new ORDERS(data);
+  var orders = req.body;
+  
+
+  ////Validacion para ordenes
+  
+
+console.log(orders);
+
+var idmenu_reg = /\w[0-9]/g
+var idcliente_reg = /\w[0-9]/g
+var street_reg = /\w[a-z]{3,}/g 
+var pagototal_reg = /\w[0-9]/g
+
+
+if(orders.idmenu.match(idmenu_reg) == null){
+  res.status(300).json({
+    msn: "formato de del IDE MENU no es valido, use solo numeros"
+  });
+  return;
+}
+
+
+if(orders.idcliente.match(idcliente_reg)==null){
+  res.status(300).json({
+    msn: "formato de ID del CLIENTE  no es valido, use solo numeros"
+  });
+  return;
+}
+if(orders.street.match(street_reg) == null){
+  res.status(300).json({
+    msn: "formato de DESCRIPCION DEL MENU no es valido, use solo letras"
+  });
+  return;
+}
+
+if(orders.pagototal.match(pagototal_reg) == null){
+  res.status(300).json({
+    msn: "formato  no es valido, use solo numeros"
+  });
+  return;
+}
+
+
+
+
+  orders["registerdate"] = new Date();
+  var neworders = new ORDERS(orders);
   neworders.save().then( (rr) => {
     //content-type
     res.status(200).json({
